@@ -1,0 +1,9 @@
+Package: shred-all
+Version: 1.1
+Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: szarkii
+Description: Destroy all provided files or files in provided directories.

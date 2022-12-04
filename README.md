@@ -1,2 +1,2 @@
 # linux-utils
-Debian repository with util scripts for Linux
+Debian repository with util scripts for Linux.

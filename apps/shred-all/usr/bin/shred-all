@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for input in "${@: 1}"; do
+	if [[ -d "$input" ]]; then
+		for file in $(find "$input" -type f); do
+			shred -zuv "$file"
+		done
+		rm -rv "$input"
+	else
+		shred -zuv "$input"
+	fi
+done

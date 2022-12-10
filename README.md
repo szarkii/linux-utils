@@ -7,5 +7,4 @@ File: /etc/apt/sources.list
 
 ```
 deb [trusted=yes] http://url/debian ./
-
 ```

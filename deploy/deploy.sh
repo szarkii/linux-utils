@@ -15,7 +15,8 @@ function getFieldValue() {
 
 source "$CONFIGURATION_FILE_PATH"
 
-mkdir -p $DEBIAN_PACKAGES_DIR
+mkdir -p "$DEBIAN_PACKAGES_DIR"
+rm -rv "$DEBIAN_PACKAGES_DIR"/*
 
 for appDir in $APPS_DIR/*; do
     controlFilePath="$appDir/$CONTROL_FILE_RELATIVE_PATH"

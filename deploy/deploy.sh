@@ -30,4 +30,6 @@ for appDir in $APPS_DIR/*; do
     mv "$APPS_DIR/$appName.deb" "$DEBIAN_PACKAGES_DIR"
 done
 
-dpkg-scanpackages $DEBIAN_PACKAGES_DIR | gzip -c9  > "${DEBIAN_PACKAGES_DIR}/Packages.gz"
+cd "$DEBIAN_PACKAGES_DIR"
+dpkg-scanpackages . | gzip -c9  > "Packages.gz"
+cd -

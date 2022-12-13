@@ -1,0 +1,9 @@
+Package: motion-detector
+Version: 0.2.1
+Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: szarkii
+Description: Detect motion and start recording.

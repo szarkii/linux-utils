@@ -5,6 +5,7 @@ DEFAULT_DEBIAN_PACKAGES_DIR="../debian"
 DEBIAN_PACKAGES_DIR="$DEFAULT_DEBIAN_PACKAGES_DIR"
 CONTROL_FILE_RELATIVE_PATH="DEBIAN/control"
 CONFIGURATION_FILE_PATH="config.sh"
+EXECUTABLES_DIR="usr/bin"
 
 function getFieldValue() {
     filePath="$1"
@@ -16,7 +17,7 @@ function getFieldValue() {
 source "$CONFIGURATION_FILE_PATH"
 
 mkdir -p "$DEBIAN_PACKAGES_DIR"
-rm -rv "$DEBIAN_PACKAGES_DIR"/*
+[[ -f "$DEBIAN_PACKAGES_DIR"/* ]] && rm -rv "$DEBIAN_PACKAGES_DIR"/*
 
 for appDir in $APPS_DIR/*; do
     controlFilePath="$appDir/$CONTROL_FILE_RELATIVE_PATH"
@@ -25,8 +26,10 @@ for appDir in $APPS_DIR/*; do
     debFileName="${appName}_v${appVersion}.deb"
     debFilePath="${DEBIAN_PACKAGES_DIR}/${debFileName}"
 
+    chmod +x -v "$appDir/$EXECUTABLES_DIR/"*
+
     # -Zxz prevents error: archive uses unknown compression for member 'control.tar.zst', giving up
-    dpkg-deb -Zxz --build "$appDir"
+    dpkg-deb --build --root-owner-group -Zxz "$appDir"
     mv "$APPS_DIR/$appName.deb" "$DEBIAN_PACKAGES_DIR"
 done
 

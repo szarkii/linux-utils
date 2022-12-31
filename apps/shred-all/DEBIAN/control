@@ -1,9 +1,10 @@
 Package: shred-all
-Version: 1.1
+Version: 1.2.2
 Section: custom
 Priority: optional
 Architecture: all
 Essential: no
 Installed-Size: 1024
-Maintainer: szarkii
+Maintainer: Linux-Utils
 Description: Destroy all provided files or files in provided directories.
+Depends: linux-utils-lib

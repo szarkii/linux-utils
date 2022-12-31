@@ -1,9 +1,9 @@
-Package: motion-detector
-Version: 0.2.1
+Package: linux-utils-lib
+Version: 1.0.0
 Section: custom
 Priority: optional
 Architecture: all
 Essential: no
 Installed-Size: 1024
 Maintainer: Linux-Utils
-Description: Detect motion and start recording.
+Description: Library package for linux utils scripts.

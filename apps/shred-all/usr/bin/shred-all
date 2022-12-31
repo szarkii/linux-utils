@@ -1,5 +1,13 @@
 #!/bin/bash
 
+source /usr/lib/linux-utils-lib.sh
+
+HELP="$0 file1 [file2 directory ...]"
+
+lib_printHelpOrVersionIfRequested "$@"
+
+[ "$#" -lt 1 ] && lib_printHelpAndExit "You have to provide at least one file or directory."
+
 for input in "${@: 1}"; do
 	if [[ -d "$input" ]]; then
 		for file in $(find "$input" -type f); do

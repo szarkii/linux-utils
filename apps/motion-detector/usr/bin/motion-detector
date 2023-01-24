@@ -526,6 +526,13 @@ try:
         camera.clear_frame()
 except KeyboardInterrupt:
     log.error("Keyboard interrupt.")
+    exit()
+except Exception as e:
+    log.error("Unexpected error occurred.")
+    print(e)
+    exit(1)
+except:
+    log.error("Unexpected error occurred.")
+    exit(1)
 finally:
     camera.close()
-    exit()

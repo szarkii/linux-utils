@@ -1,0 +1,37 @@
+#!/bin/bash
+
+source /usr/lib/linux-utils-lib.sh
+
+HELP="$0 video [video2, video3, ...]"
+
+lib_printHelpOrVersionIfRequested "$@"
+
+[ "$#" -lt 1 ] && lib_printHelpAndExit "You have to provide at least one video file."
+
+generateFrames() {
+    if [ ! -f "$1" ]; then
+        lib_logWarn "Provided argument \"$1\" is not a file. Skipping..."
+        return
+    fi
+
+    fileDir=$(dirname $1)
+    filename=$(basename $1)
+    filePath=$(realpath "$1")
+    framesDir="$fileDir/${filename%%.*}"
+
+    if [ -d "$framesDir" ] && [ $(ls "$framesDir" | wc -l) -gt 0 ]; then
+        lib_logWarn "Frames for \"$filename\" already generated. Skipping..."
+        return
+    fi
+
+    mkdir -p "$framesDir"
+    cd $framesDir
+    lib_logInfo "Generating frames for \"$filename\" file."
+    ffmpeg -i "$filePath" -r 1 -f image2 image-%3d.jpeg 1>/dev/null 2>/dev/null
+    lib_logSuccess "$(ls . | wc -l) frames taken from \"$filename\" saved in \"$framesDir\"."
+    cd - > /dev/null
+}
+
+for file in "${@: 1}"; do
+	generateFrames "$file"
+done

@@ -1,0 +1,10 @@
+Package: frames-from-vid
+Version: 0.0.1
+Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: Linux-Utils
+Description: Generates frames from vid.
+Depends: linux-utils-lib, ffmpeg

@@ -1,11 +1,12 @@
 #!/bin/bash
 
-SCRIPT_ROOT=$(dirname "$0")
-APPS_DIR="$SCRIPT_ROOT/../apps"
-DEFAULT_DEBIAN_PACKAGES_DIR="$SCRIPT_ROOT/../debian"
+SCRIPT_PATH=$(dirname "$0")
+REPOSITORY_PATH="$SCRIPT_PATH/.."
+APPS_DIR="$REPOSITORY_PATH/apps"
+DEFAULT_DEBIAN_PACKAGES_DIR="$REPOSITORY_PATH/debian"
 DEBIAN_PACKAGES_DIR="$DEFAULT_DEBIAN_PACKAGES_DIR"
 CONTROL_FILE_RELATIVE_PATH="DEBIAN/control"
-CONFIGURATION_FILE_PATH="config.sh"
+CONFIGURATION_FILE_PATH="$SCRIPT_PATH/config.sh"
 EXECUTABLES_DIR="usr/bin"
 
 function getFieldValue() {
@@ -15,7 +16,12 @@ function getFieldValue() {
     grep "$fieldName" "$filePath" | sed -e "s/$fieldName: *//" 
 }
 
- [ -f "$CONFIGURATION_FILE_PATH" ] && source "$CONFIGURATION_FILE_PATH"
+# Update repository
+cd "$REPOSITORY_PATH"
+git pull
+cd -
+
+[ -f "$CONFIGURATION_FILE_PATH" ] && source "$CONFIGURATION_FILE_PATH"
 
 mkdir -p "$DEBIAN_PACKAGES_DIR"
 [ -d "$DEBIAN_PACKAGES_DIR" ] && rm -rv "$DEBIAN_PACKAGES_DIR"/*
@@ -34,6 +40,6 @@ for appDir in $APPS_DIR/*; do
     mv "$APPS_DIR/$appName.deb" "$DEBIAN_PACKAGES_DIR"
 done
 
+# Update packages
 cd "$DEBIAN_PACKAGES_DIR"
 dpkg-scanpackages . | gzip -c9  > "Packages.gz"
-cd -

@@ -1,5 +1,5 @@
 Package: music-metadata
-Version: 1.0.0
+Version: 1.0.1
 Section: custom
 Priority: optional
 Architecture: all
@@ -7,4 +7,4 @@ Essential: no
 Installed-Size: 1024
 Maintainer: Linux-Utils
 Description: Set metadata in music files.
-Depends: linux-utils-lib, kid3-cli, youtube-dl
+Depends: linux-utils-lib, kid3-cli

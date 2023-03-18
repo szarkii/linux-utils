@@ -3,8 +3,8 @@
 source /usr/lib/linux-utils-lib.sh
 
 HELP="Sets metadata for music files. Downloads the file if input is URL.
-$(basename $0) [-s | --show] [-o output] [-t track] [-n name] [-a artist] [-l album] [-y year] [-g genre] input
-input  file, directory or URL
+$(basename $0) [-s | --show] [-o output] [-t track] [-n name] [-a artist] [-l album] [-y year] [-g genre] input [input2, ...]
+input  file or URL
 -n  will be also the name of file if input is URL (if empty the title will be used)
 -o  output directory (if downloading file)
 -s  only show metadata
@@ -50,7 +50,7 @@ function setMetadata() {
     filePath="$7"
 
     setMetadataIfNeeded "track" "$track" "$filePath"
-    setMetadataIfNeeded "title" "${name//\.mp3/}" "$filePath"
+    setMetadataIfNeeded "title" "$name" "$filePath"
     setMetadataIfNeeded "artist" "$artist" "$filePath"
     setMetadataIfNeeded "album" "$album" "$filePath"
     setMetadataIfNeeded "date" "$year" "$filePath"
@@ -68,43 +68,11 @@ function setMetadataIfNeeded() {
 
     if [[ ! -z "$metadataValue" ]]; then
         echo "Setting $metadataValue $metadataName in $fileName"
-        kid3-cli -c "set $metadataName '$metadataValue'" "$filePath"
+        kid3-cli -c "set $metadataName '${metadataValue/\'/\\\'}'" "$filePath"
     fi
 }
 
-function deleteMetadata() {
-    metadataToDelete=("$@")
-    ((lastIndex=${#metadataToDelete[@]} - 1))
-    filePath=${metadataToDelete[lastIndex]}
-    unset metadataToDelete[lastIndex]
-
-    for metadata in "${metadataToDelete[@]}"; do
-        kid3-cli -c "remove $metadata" "$filePath"
-    done
-}
-
-metadataToDelete=()
-
-while getopts o:t:n:a:l:y:g:u:d:s: option; do
-    case "${option}" in
-        o) output=${OPTARG} ;;
-        t) track=${OPTARG} ;;
-        n) name=${OPTARG} ;;
-        a) artist=${OPTARG} ;;
-        l) album=${OPTARG} ;;
-        y) year=${OPTARG} ;;
-        g) genre=${OPTARG} ;;
-        u) url=${OPTARG} ;;
-        d)  echo "[WARN] Deleting metadata could not work properly."
-            if [[ ${OPTARG} = "year" ]]; then
-                metadataToDelete+=("date")
-            else
-                metadataToDelete+=(${OPTARG})
-            fi
-            ;;
-    esac
-done
-
+# Only show metadata
 if [[ "$@" = *"-s"* || "$@" = *"--show"* ]]; then
     for arg in "$@"; do
         if [[ "$arg" != *"-s"* && "$arg" != *"--show"* ]]; then
@@ -118,33 +86,59 @@ if [[ "$@" = *"-s"* || "$@" = *"--show"* ]]; then
     exit
 fi
 
-input="${@: -1}"
+options=()
 
-# Download the file
-if [[ "$input" = "http"* ]]; then
-    if [[ -z "$name" ]]; then
-        name=$(getFileName "$input")
-    fi
+while getopts o:t:n:a:l:y:g:d: option; do
+    options+=("-$option" "$OPTARG")
+    case "${option}" in
+        o) output=${OPTARG} ;;
+        t) track=${OPTARG} ;;
+        n) name=${OPTARG} ;;
+        a) artist=${OPTARG} ;;
+        l) album=${OPTARG} ;;
+        y) year=${OPTARG} ;;
+        g) genre=${OPTARG} ;;
+    esac
+done
 
-    if [[ -z "$output" ]]; then
-        output="."
-    fi
+inputs=()
 
-    downloadFile "$name" "$output" "$input"
+for arg in "$@"; do
+    isOption='false'
 
-    input=$(ls "$output/$name"* | head -n1)
-fi
-
-# Add or delete file's metadata
-input="$(realpath "$input")"
-
-if [[ -d "$input" ]]; then
-    for fileName in $(ls "$input"); do
-        filePath="$input/$fileName"
-        deleteMetadata "${metadataToDelete[@]}" "$filePath"
-        setMetadata "$track" "$name" "$artist" "$album" "$year" "$genre" "$filePath"
+    for option in "${options[@]}"; do
+        if [ "$arg" = "$option" ]; then
+            isOption='true'
+            break
+        fi
     done
-else
-    deleteMetadata "${metadataToDelete[@]}" "$input"
-    setMetadata "$track" "$name" "$artist" "$album" "$year" "$genre" "$input"
-fi
+
+    if [ $isOption = 'false' ]; then
+        inputs+=("$arg")
+    fi
+done
+
+files=()
+
+for input in "${inputs[@]}"; do
+    if [[ "$input" = "http"* ]]; then
+        if [[ -z "$name" ]]; then
+            name=$(getFileName "$input")
+        fi
+
+        if [[ -z "$output" ]]; then
+            output="."
+        fi
+
+        downloadFile "$name" "$output" "$input"
+
+        files+=("$(ls "$output/$name"* | head -n1)")
+    else
+        files+=("$input")
+    fi
+done
+
+for file in "${files[@]}"; do
+    filePath=$(realpath "$file")
+    setMetadata "$track" "$name" "$artist" "$album" "$year" "$genre" "$filePath"
+done

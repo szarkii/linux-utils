@@ -3,10 +3,11 @@
 source /usr/lib/linux-utils-lib.sh
 
 HELP="Sets metadata for music files. Downloads the file if input is URL.
-$(basename $0) [-o output] [-t track] [-n name] [-a artist] [-l album] [-y year] [-g genre] input
-  input  file, directory or URL
-  -n  will be also the name of file if input is URL (if empty the title will be used)
-  -o  output directory (if downloading file)
+$(basename $0) [-s | --show] [-o output] [-t track] [-n name] [-a artist] [-l album] [-y year] [-g genre] input
+input  file, directory or URL
+-n  will be also the name of file if input is URL (if empty the title will be used)
+-o  output directory (if downloading file)
+-s  only show metadata
 "
 
 lib_printHelpOrVersionIfRequested "$@"
@@ -21,7 +22,7 @@ function downloadFile() {
     tmpPath="$tmpDir/file"
 
     youtube-dl -f "bestaudio/best" -ciw -o "${tmpPath}.%(ext)s" --extract-audio --audio-quality 0 "$url"
-    
+
     if [ $? != 0 ]; then
         lib_logError "Cannot download the file."
         exit
@@ -30,7 +31,7 @@ function downloadFile() {
     downloadedFileName=$(ls $tmpDir | head -n1)
     outputPath="${output}/${name}.${downloadedFileName#*.}"
     mv "$tmpDir/$downloadedFileName" "$outputPath"
-    
+
     rm -r "$tmpDir"
     echo "$outputPath"
 }
@@ -47,7 +48,7 @@ function setMetadata() {
     year="$5"
     genre="$6"
     filePath="$7"
-    
+
     setMetadataIfNeeded "track" "$track" "$filePath"
     setMetadataIfNeeded "title" "${name//\.mp3/}" "$filePath"
     setMetadataIfNeeded "artist" "$artist" "$filePath"
@@ -64,7 +65,7 @@ function setMetadataIfNeeded() {
     metadataValue="$2"
     filePath="$3"
     fileName="$(basename "$filePath")"
-    
+
     if [[ ! -z "$metadataValue" ]]; then
         echo "Setting $metadataValue $metadataName in $fileName"
         kid3-cli -c "set $metadataName '$metadataValue'" "$filePath"
@@ -84,7 +85,7 @@ function deleteMetadata() {
 
 metadataToDelete=()
 
-while getopts o:t:n:a:l:y:g:u:d: option; do
+while getopts o:t:n:a:l:y:g:u:d:s: option; do
     case "${option}" in
         o) output=${OPTARG} ;;
         t) track=${OPTARG} ;;
@@ -104,6 +105,19 @@ while getopts o:t:n:a:l:y:g:u:d: option; do
     esac
 done
 
+if [[ "$@" = *"-s"* || "$@" = *"--show"* ]]; then
+    for arg in "$@"; do
+        if [[ "$arg" != *"-s"* && "$arg" != *"--show"* ]]; then
+            lib_logInfo "$arg"
+            lib_logSeparator
+            kid3-cli -c "get" "$arg"
+            lib_logSeparator
+        fi
+    done
+
+    exit
+fi
+
 input="${@: -1}"
 
 # Download the file
@@ -115,7 +129,7 @@ if [[ "$input" = "http"* ]]; then
     if [[ -z "$output" ]]; then
         output="."
     fi
-    
+
     downloadFile "$name" "$output" "$input"
 
     input=$(ls "$output/$name"* | head -n1)

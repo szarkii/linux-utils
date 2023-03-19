@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+
+import sys
+sys.path.append('/usr/lib')
+from LinuxUtilsImgDiff import ImagesDifference, ImageService
+import cv2
+
+first_image_path = sys.argv[1]
+second_image_path = sys.argv[2]
+
+if len(sys.argv) > 3:
+    similarity_threshold = sys.argv[3]
+else:
+    similarity_threshold = 50
+
+image_service = ImageService()
+
+first_image = image_service.get_from_file(first_image_path)
+first_image_height, first_image_width, _ = first_image.shape
+second_image = image_service.get_from_file(second_image_path)
+second_image_height, second_image_width, _ = second_image.shape
+
+if first_image_height != second_image_height or first_image_width != second_image_width:
+    print('Error: First image size [' + str(first_image_width) + 'x' + str(first_image_height) + '] does not match second one [' + str(second_image_width) + 'x' + str(second_image_height) + '].')
+    exit(1)
+
+first_image_gray = image_service.convert_to_gray(first_image)
+second_image_gray = image_service.convert_to_gray(second_image)
+
+images_difference = ImagesDifference(first_image_gray, second_image_gray, similarity_threshold)
+
+images_difference.calculate_difference()
+print(images_difference.are_different())

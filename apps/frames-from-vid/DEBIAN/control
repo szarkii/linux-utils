@@ -1,10 +1,10 @@
 Package: frames-from-vid
-Version: 0.0.1
+Version: 1.0.0
 Section: custom
 Priority: optional
 Architecture: all
 Essential: no
 Installed-Size: 1024
 Maintainer: Linux-Utils
-Description: Generates frames from vid.
-Depends: linux-utils-lib, ffmpeg
+Description: Generates frames from vid. Can remove the same frames and leave only unique ones.
+Depends: linux-utils-lib, ffmpeg, images-difference

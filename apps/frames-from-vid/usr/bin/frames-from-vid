@@ -2,7 +2,9 @@
 
 source /usr/lib/linux-utils-lib.sh
 
-HELP="$0 video [video2, video3, ...]"
+HELP="$0 [-u] [-t threshold] video [video2, video3, ...]
+-u  delete the same frames and leave only unique ones
+-t  similarity threshold, lower more accurate, only if -u specified"
 
 lib_printHelpOrVersionIfRequested "$@"
 
@@ -13,17 +15,17 @@ generateFrames() {
         lib_logWarn "Provided argument \"$1\" is not a file. Skipping..."
         return
     fi
-
+    
     fileDir=$(dirname $1)
     filename=$(basename $1)
     filePath=$(realpath "$1")
     framesDir="$fileDir/${filename%%.*}"
-
+    
     if [ -d "$framesDir" ] && [ $(ls "$framesDir" | wc -l) -gt 0 ]; then
         lib_logWarn "Frames for \"$filename\" already generated. Skipping..."
         return
     fi
-
+    
     mkdir -p "$framesDir"
     cd $framesDir
     lib_logInfo "Generating frames for \"$filename\" file."
@@ -32,6 +34,57 @@ generateFrames() {
     cd - > /dev/null
 }
 
-for file in "${@: 1}"; do
-	generateFrames "$file"
+deleteDuplicates() {
+    # TODO Extract
+    fileDir=$(dirname $1)
+    filename=$(basename $1)
+    framesDir="$fileDir/${filename%%.*}"
+    
+    similarityThreshold="$2"
+    duplicatesNumber=0
+    
+    for framePath in "$framesDir"/*; do
+        if [ -z "$previousFramePath" ]; then
+            previousFramePath="$framePath"
+            continue
+        fi
+        
+        if [ -z "$similarityThreshold" ]; then
+            areDifferent=$(images-difference "$previousFramePath" "$framePath")
+        else
+            areDifferent=$(images-difference "$previousFramePath" "$framePath" "$similarityThreshold")
+        fi
+        
+        if [ "$areDifferent" = 'False' ]; then
+            mkdir -p "$framesDir/same"
+            # TODO Change to delete after more cautious testing
+            mv "$framePath" "$framesDir/same"
+            duplicatesNumber=$((duplicatesNumber+1))
+        fi
+        
+        previousFramePath=''
+    done
+    
+    lib_logSuccess "Deleted $duplicatesNumber same frames."
+}
+
+firstFileArgument=1
+shouldDeleteDuplicates='false'
+
+while getopts ut: option; do
+    case "${option}" in
+        u)  shouldDeleteDuplicates='true'
+            firstFileArgument=$((firstFileArgument+1))
+        ;;
+        t)  similarityThreshold=${OPTARG}
+            firstFileArgument=$((firstFileArgument+2))
+        ;;
+    esac
+done
+
+for file in "${@: $firstFileArgument}"; do
+    generateFrames "$file"
+    if [ "$shouldDeleteDuplicates" = 'true' ]; then
+        deleteDuplicates "$framesDir" "$similarityThreshold"
+    fi
 done

@@ -58,11 +58,11 @@ deleteDuplicates() {
         if [ "$areDifferent" = 'False' ]; then
             mkdir -p "$framesDir/same"
             # TODO Change to delete after more cautious testing
-            mv "$framePath" "$framesDir/same"
+            mv "$previousFramePath" "$framesDir/same"
             duplicatesNumber=$((duplicatesNumber+1))
         fi
         
-        previousFramePath=''
+        previousFramePath="$framePath"
     done
     
     lib_logSuccess "Deleted $duplicatesNumber same frames."

@@ -2,6 +2,8 @@
 
 source /usr/lib/linux-utils-lib.sh
 
+IFS=$'\n'
+
 HELP="$0 file1 [file2 directory ...]"
 
 lib_printHelpOrVersionIfRequested "$@"

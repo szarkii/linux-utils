@@ -10,9 +10,11 @@ if [ "$1" = "-p" ] || [ "$1" = "--progress" ]; then
 	showProgress="true"
 	minimumArgs=2
 	firstInputArg=2
+	shredVerboseFlag=""
 else
 	minimumArgs=1
 	firstInputArg=1
+	shredVerboseFlag="v"
 fi
 
 lib_printHelpOrVersionIfRequested "$@"
@@ -46,20 +48,20 @@ fi
 for input in "${@: $firstInputArg}"; do
 	if [[ -d "$input" ]]; then
 		for file in $(find "$input" -type f); do
-			shred -zuv "$file"
-			
 			if [ "$showProgress" = "true" ]; then
 				printProgress "$(basename $file)" "$processedFilesNumber" "$totalFilesNumber"
 				processedFilesNumber=$((processedFilesNumber+1))
 			fi
+
+			shred -zu${shredVerboseFlag} "$file"
 		done
 		rm -rv "$input"
 	else
-		shred -zuv "$input"
-		
 		if [ "$showProgress" = "true" ]; then
 			printProgress
 			processedFilesNumber=$((processedFilesNumber+1))
 		fi
+
+		shred -zu${shredVerboseFlag} "$input"
 	fi
 done

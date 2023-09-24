@@ -4,19 +4,62 @@ source /usr/lib/linux-utils-lib.sh
 
 IFS=$'\n'
 
-HELP="$0 file1 [file2 directory ...]"
+HELP="$0 [-p | --progress] file1 [file2 directory ...]"
+
+if [ "$1" = "-p" ] || [ "$1" = "--progress" ]; then
+	showProgress="true"
+	minimumArgs=2
+	firstInputArg=2
+else
+	minimumArgs=1
+	firstInputArg=1
+fi
 
 lib_printHelpOrVersionIfRequested "$@"
 
-[ "$#" -lt 1 ] && lib_printHelpAndExit "You have to provide at least one file or directory."
+[ "$#" -lt "$minimumArgs" ] && lib_printHelpAndExit "You have to provide at least one file or directory."
 
-for input in "${@: 1}"; do
+function printProgress() {
+	name="$1"
+	processed="$2"
+	total="$3"
+	
+	clear
+	percentage=$(echo "scale=2; $processed/$total*100" | bc -l)
+	percentage=${percentage%.*}
+	echo "$name $processed/$total $percentage%"
+} 
+
+if [ "$showProgress" = "true" ]; then
+	totalFilesNumber=0
+	for input in "${@: $firstInputArg}"; do
+		if [[ -d "$input" ]]; then
+			curentInputFilesNumber=$(find "$input" -type f | wc -l)
+			totalFilesNumber=$((totalFilesNumber+curentInputFilesNumber))
+		else
+			totalFilesNumber=$((totalFilesNumber+1))
+		fi
+	done
+	processedFilesNumber="0"
+fi
+
+for input in "${@: $firstInputArg}"; do
 	if [[ -d "$input" ]]; then
 		for file in $(find "$input" -type f); do
 			shred -zuv "$file"
+			
+			if [ "$showProgress" = "true" ]; then
+				printProgress "$(basename $file)" "$processedFilesNumber" "$totalFilesNumber"
+				processedFilesNumber=$((processedFilesNumber+1))
+			fi
 		done
 		rm -rv "$input"
 	else
 		shred -zuv "$input"
+		
+		if [ "$showProgress" = "true" ]; then
+			printProgress
+			processedFilesNumber=$((processedFilesNumber+1))
+		fi
 	fi
 done

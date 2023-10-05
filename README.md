@@ -47,6 +47,14 @@ Sets metadata for the music files. Downloads a file if needed.
 
 ## shred-all
 
-Wrapper for a `shred`. Allows to shred whole dictionaries recursively.
+Wrapper for a `shred`. Allows to shred whole dictionaries recursively. Could also show the progress of shredding the files.
 
 **Technology**: bash
+
+## concat-video
+
+Concatenate two or more video files.
+
+**Technology**: bash
+
+**Dependencies**: ffmpeg

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+source /usr/lib/linux-utils-lib.sh
+
+IFS=$'\n'
+
+HELP="$0 [-o | --output name] file1 file2 [file3 ...]
+  -o  output file name (first + last file names by default)"
+
+lib_printHelpOrVersionIfRequested "$@"
+
+[ "$#" -lt 2 ] && lib_printHelpAndExit "You have to provide at least two files."
+
+output=""
+firstFileIndex=1
+
+if [[ "$1" = "-o" || "$1" = "--output" ]]; then
+    if [[ -z "$2" ]]; then
+        lib_printHelpAndExit "You have to provide the output file name."
+    fi
+    output="$2"
+    firstFileIndex=3
+else
+    output="${1%.*}-$(basename ${@: -1})"
+fi
+
+if [[ $# -lt $(($firstFileIndex + 1)) ]]; then
+    lib_printHelpAndExit "You have to provide at least two files."
+fi
+
+tmpListPath="/tmp/$(basename $0)-list-$RANDOM"
+
+for file in "${@: firstFileIndex}"; do
+	filePath="$(realpath $file)"
+	filePath="${filePath// /\\ }"
+    echo "file $filePath" >> "$tmpListPath"
+done
+
+# -safe 0 for "Unsafe file name" error
+ffmpeg -f concat -safe 0 -i "$tmpListPath" -c copy "$output"

@@ -7,4 +7,4 @@ Essential: no
 Installed-Size: 1024
 Maintainer: Linux-Utils
 Description: Concatenate provided video files.
-Depends: linux-utils-lib ffmpeg
+Depends: linux-utils-lib, ffmpeg

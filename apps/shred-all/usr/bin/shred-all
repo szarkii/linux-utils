@@ -58,7 +58,7 @@ for input in "${@: $firstInputArg}"; do
 		rm -rv "$input"
 	else
 		if [ "$showProgress" = "true" ]; then
-			printProgress
+			printProgress "$(basename $input)" "$processedFilesNumber" "$totalFilesNumber"
 			processedFilesNumber=$((processedFilesNumber+1))
 		fi
 

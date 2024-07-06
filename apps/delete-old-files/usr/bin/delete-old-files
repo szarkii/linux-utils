@@ -27,5 +27,6 @@ done
 
 for d in $(find "$directory" -type d -empty); do
     echo "$(date '+%Y-%m-%d %H:%M:%S') Deleting $d directory." >> "$log_file"
+    ls -l "$d" >> "$log_file"
     rmdir -v "$d" >> "$log_file"
 done

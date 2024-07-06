@@ -1,0 +1,10 @@
+Package: enc
+Version: 1.0.0
+Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: Linux-Utils
+Description: Encrypt and decrypt files.
+Depends: linux-utils-lib

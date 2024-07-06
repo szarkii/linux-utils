@@ -1,0 +1,30 @@
+#!/bin/bash
+
+source /usr/lib/linux-utils-lib.sh
+IFS=$'\n'
+
+HELP="$0 directory days
+Delete files older than a given time. Example:
+   $0 ~/tmp 30"
+
+lib_printHelpOrVersionIfRequested "$@"
+[ "$#" -lt 1 ] && lib_printHelpAndExit "You have to provide at least path to the directory."
+
+directory="$1"
+days="$2"
+
+if [ -z  "$days" ]; then
+    days=30
+fi
+
+log_file="$directory/$0_$(date '+%Y-%m-%d').log"
+
+for f in $(find "$directory" -type f -mtime "+$days"); do
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Deleting $f file." >> "$log_file"
+    rm -v "$f" >> "$log_file"
+done
+
+for d in $(find "$directory" -type d -empty); do
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Deleting $d directory." >> "$log_file"
+    rmdir -v "$d" >> "$log_file"
+done

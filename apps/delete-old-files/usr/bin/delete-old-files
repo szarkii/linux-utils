@@ -21,6 +21,7 @@ log_file="$directory/$(basename $0)_$(date '+%Y-%m-%d').log"
 
 for f in $(find "$directory" -type f -mtime "+$days"); do
     echo "$(date '+%Y-%m-%d %H:%M:%S') Deleting $f file." >> "$log_file"
+    ls -l "$f" >> "$log_file"
     rm -v "$f" >> "$log_file"
 done
 

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+source /usr/lib/linux-utils-lib.sh
+
+HELP="$0 mount-point
+    mount-point    e.g. /media/user/pendrive"
+
+mountPoint="$1"
+
+lib_printHelpOrVersionIfRequested "$@"
+[ "$#" -lt 1 ] && lib_printHelpAndExit "You have to provide path to the mount point."
+
+function createZero() {
+    dd if=/dev/zero "of=$mountPoint/zero$1" bs=512 2> wipe.out
+}
+
+function printDiskSize() {
+    df | grep "$mountPoint"
+}
+
+lib_logInfo "Started"
+
+index=1
+createZero "$index"
+while [[ $(cat wipe.out) = *"File too large"* ]]; do
+    lib_logInfo "Creating $index file"
+    index=$((index + 1))
+    createZero "$index"
+    printDiskSize
+done
+
+rm -v "$mountPoint/zero"*
+rm -v wipe.out
+
+printDiskSize
+lib_logSuccess "Done"

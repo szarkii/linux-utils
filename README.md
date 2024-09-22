@@ -3,10 +3,32 @@ Debian repository with util scripts for Linux.
 
 ## Setup
 
-### Add repository
+### Add repository Ubuntu >= 24.04
 
-File: `/etc/apt/sources.list`
+File:
 
+```
+/etc/apt/sources.list.d/ubuntu.sources
+```
+
+Content:
+
+```
+Types: deb
+URIs: http://sample-url.com/debian
+Suites: ./
+Components:
+Trusted: yes
+```
+
+### Add repository Ubuntu <= 22.04
+
+File:
+
+```
+/etc/apt/sources.list
+```
+Content:
 ```
 deb [trusted=yes] http://sample-url.com/debian ./
 ```

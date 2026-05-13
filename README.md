@@ -130,6 +130,19 @@ shred-all [-p | --progress] file1 [file2 directory ...]
 
 **Technology**: bash
 
+## telegram-notifier
+
+```
+telegram-notifier message
+
+Sends message to specificed Telegram channel by a bot.
+Requires defining and export variables (for example in .bashrc file):
+    TELEGRAM_NOTIFIER_KEY           Bot key
+    TELEGRAM_NOTIFIER_CHANNEL_ID    Channel ID
+```
+
+**Technology**: bash
+
 ## wipe-disk
 
 Creates a file and fills it with zero in order to fulfill the remaining space and override existing data.

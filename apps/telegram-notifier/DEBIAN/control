@@ -1,0 +1,10 @@
+Package: telegram-notifier
+Version: 1.0.0
+Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: Linux-Utils
+Description: Sends notification message to Telegram channel.
+Depends: linux-utils-lib

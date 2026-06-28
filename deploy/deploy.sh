@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_PATH=$(dirname "$0")
+SCRIPT_PATH=$(realpath $(dirname "$0"))
 REPOSITORY_PATH="$SCRIPT_PATH/.."
 APPS_DIR="$REPOSITORY_PATH/apps"
 DEFAULT_DEBIAN_PACKAGES_DIR="$REPOSITORY_PATH/debian"

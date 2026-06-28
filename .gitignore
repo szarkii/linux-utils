@@ -1,2 +1,2 @@
-debian
+debian/*
 deploy/config.sh

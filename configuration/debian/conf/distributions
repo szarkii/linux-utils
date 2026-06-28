@@ -1,0 +1,8 @@
+Origin: Szarkii Repository
+Label: Szarkii
+Codename: resolute
+Version: 1.0
+Architectures: amd64
+Components: main
+Description: Szarkii Linux Utils
+#SignWith: your-key-id

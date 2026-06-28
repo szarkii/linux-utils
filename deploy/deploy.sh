@@ -9,6 +9,9 @@ CONTROL_FILE_RELATIVE_PATH="DEBIAN/control"
 CONFIGURATION_FILE_PATH="$SCRIPT_PATH/config.sh"
 EXECUTABLES_DIR="usr/bin"
 
+DEBIAN_CONFIGURATION_PATH="$REPOSITORY_PATH/conf/debian/conf"
+DEBIAN_REPOSITORY_CODE_NAME="resolute"
+
 function getFieldValue() {
     filePath="$1"
     fieldName="$2"
@@ -26,6 +29,10 @@ cd -
 mkdir -p "$DEBIAN_PACKAGES_DIR"
 [ -d "$DEBIAN_PACKAGES_DIR" ] && rm -rv "$DEBIAN_PACKAGES_DIR"/*
 
+cp -rv "$DEBIAN_CONFIGURATION_PATH" "$DEBIAN_PACKAGES_DIR"
+
+cd $DEBIAN_PACKAGES_DIR
+
 for appDir in $APPS_DIR/*; do
     controlFilePath="$appDir/$CONTROL_FILE_RELATIVE_PATH"
     appName=$(getFieldValue "$controlFilePath" "Package")
@@ -37,9 +44,7 @@ for appDir in $APPS_DIR/*; do
 
     # -Zxz prevents error: archive uses unknown compression for member 'control.tar.zst', giving up
     dpkg-deb --build --root-owner-group -Zxz "$appDir"
-    mv "$APPS_DIR/$appName.deb" "$DEBIAN_PACKAGES_DIR"
-done
 
-# Update packages
-cd "$DEBIAN_PACKAGES_DIR"
-dpkg-scanpackages . | gzip -c9  > "Packages.gz"
+    reprepro -v includedeb "$DEBIAN_REPOSITORY_CODE_NAME" "$APPS_DIR/$appName.deb"
+    rm -v "$APPS_DIR/$appName.deb"
+done
